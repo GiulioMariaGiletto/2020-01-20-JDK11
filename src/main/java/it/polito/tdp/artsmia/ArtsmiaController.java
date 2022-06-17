@@ -1,8 +1,10 @@
 package it.polito.tdp.artsmia;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.artsmia.model.Adiacenza;
 import it.polito.tdp.artsmia.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,7 +33,7 @@ public class ArtsmiaController {
     private Button btnCalcolaPercorso;
 
     @FXML
-    private ComboBox<?> boxRuolo;
+    private ComboBox<String> boxRuolo;
 
     @FXML
     private TextField txtArtista;
@@ -43,22 +45,51 @@ public class ArtsmiaController {
     void doArtistiConnessi(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Calcola artisti connessi");
+    	for(Adiacenza a:model.vicini()) {
+    		txtResult.appendText(a+"\n");
+    	}
     }
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Calcola percorso");
+    	int n;
+    	try {
+    		n=Integer.parseInt(txtArtista.getText());
+    		List<Integer> percorso=model.ricorsione(n);
+    		if(percorso==null) {
+    			txtResult.appendText("ARTISTA NON TROVATO");
+    		}
+    		else {
+    			for(int ll:percorso) {
+    				txtResult.appendText(ll+"\n");
+    				txtResult.appendText(""+percorso.size());
+    			}
+    		}
+    	}catch(NumberFormatException e) {
+    		txtResult.appendText("INSERISCI UN NUMERO VALIDO +\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Crea grafo");
+    	txtResult.appendText("Crea grafo \n");
+    	String ruolo=boxRuolo.getValue();
+    	if(ruolo==null) {
+    		txtResult.appendText("INSERISCI PRIMA RUOLO"+"\n");
+    		return;
+    	}
+    	else {
+    		model.creaGrafo(ruolo);
+    		txtResult.appendText("Il grafo satmpato ha "+model.nVert()+" vertici e numero di archi pari a "  +model.nArc());
+    	}
     }
 
     public void setModel(Model model) {
     	this.model = model;
+    	boxRuolo.getItems().addAll(model.getRole());
     }
 
     
